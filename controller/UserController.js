@@ -23,7 +23,7 @@ const storage = multer.diskStorage({
 export const upload = multer({ storage });
 export async function uploadUserPhoto(req, res) {
     try {
-        const userId = req.params.id;
+        const id = req.params.id;
 
         if (!req.file) {
             return res
@@ -31,18 +31,21 @@ export async function uploadUserPhoto(req, res) {
                 .json({ success: false, message: "No file uploaded" });
         }
 
-        const photoUrl = '/uploads/${req.file.filename}';
+        // Correct string interpolation
+        const photo = `/uploads/${req.file.filename}`;
+
 
         // Update kolom photo_url
-        await User.update({ photo_url: photoUrl }, { where: { id: userId } });
+        await User.update({ photo: photo }, { where: { id: id } });
 
         res
             .status(200)
-            .json({ success: true, message: "Photo uploaded", photoUrl });
+            .json({ success: true, message: "Photo uploaded", photo });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 }
+
 
 // Register
 async function registerUser(req, res) {
