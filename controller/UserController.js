@@ -1,5 +1,48 @@
 import User from "../model/UserModel.js";
 import bcrypt from "bcrypt";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+
+// Setup multer storage
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const uploadDir = "./uploads";
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir);
+        }
+        cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+        // Simpan dengan userId + ekstensi file asli
+        const ext = path.extname(file.originalname);
+        cb(null, req.params.id + ext);
+    },
+});
+
+export const upload = multer({ storage });
+export async function uploadUserPhoto(req, res) {
+    try {
+        const userId = req.params.id;
+
+        if (!req.file) {
+            return res
+                .status(400)
+                .json({ success: false, message: "No file uploaded" });
+        }
+
+        const photoUrl = '/uploads/${req.file.filename}';
+
+        // Update kolom photo_url
+        await User.update({ photo_url: photoUrl }, { where: { id: userId } });
+
+        res
+            .status(200)
+            .json({ success: true, message: "Photo uploaded", photoUrl });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+}
 
 // Register
 async function registerUser(req, res) {
@@ -119,5 +162,7 @@ async function deleteUser(req, res) {
         res.status(500).json({ message: error.message });
     }
 }
+
+
 
 export { registerUser, loginUser, logoutUser, getUserById, updateUser, deleteUser };

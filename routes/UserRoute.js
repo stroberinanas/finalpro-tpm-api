@@ -1,5 +1,8 @@
 import express from "express";
-import { registerUser, loginUser, logoutUser, getUserById, updateUser, deleteUser } from "../controller/UserController.js";
+import {
+    registerUser, loginUser, logoutUser, getUserById, updateUser, deleteUser, uploadUserPhoto,
+    upload
+} from "../controller/UserController.js";
 import { getBasecamp, getBasecampById } from "../controller/BasecampController.js";
 import { getPos, getPosById } from "../controller/PosController.js";
 
@@ -11,6 +14,7 @@ router.delete("/logout", logoutUser);
 router.get("/user/:id", getUserById);
 router.put("/user/:id", updateUser);
 router.delete("/user/:id", deleteUser);
+router.post("/user/:id/upload-photo", upload.single("photo"), uploadUserPhoto);
 
 router.get("/basecamp", getBasecamp);
 router.get("/basecamp/:id", getBasecampById);
